@@ -62,7 +62,7 @@
   .bilete-kort { position: relative; border-radius: 22px; overflow: hidden; aspect-ratio: 4/5; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
   .bilete-kort img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 1.6s ease; }
   .bilete-kort:hover img { transform: scale(1.12); }
-  .bilete-kort.portrett { aspect-ratio: 864/930; }
+  .bilete-kort.portrett { aspect-ratio: 700/848; }
   .bilete-kort.portrett img { object-position: center top; transform: scale(1.02); }
   .bilete-kort.portrett:hover img { transform: scale(1.06); }
   .bilete-kort figcaption .tittel { display: block; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal); margin-bottom: 2px; }
@@ -76,13 +76,16 @@
   .kort h3 { margin: 10px 0 8px; font-size: 20px; }
   .kort p { margin: 0; color: var(--svak); }
 
+  .bransjar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .bransjar span { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--kant); background: var(--kort); color: #dbe7e6; font-size: 15px; }
+  .bransjar span:last-child { border-color: rgba(47,181,166,.5); color: var(--teal); }
   .to { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 34px; }
   .djup { background: var(--djup); }
   .tillit { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start; max-width: 760px; }
   .ikon { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: rgba(95,208,217,.12); color: var(--sjo); }
 
   .kontakt { text-align: center; padding: 120px 0 130px; background:
-             linear-gradient(180deg, rgba(7,18,22,.92), rgba(7,18,22,.55) 45%, rgba(7,18,22,.92)), url(fjord.jpg) center/cover no-repeat; }
+             linear-gradient(180deg, rgba(7,18,22,.92), rgba(7,18,22,.55) 45%, rgba(7,18,22,.92)), url(industri.jpg) center/cover no-repeat; }
   .kontakt h2 { max-width: 18ch; margin-left: auto; margin-right: auto; }
   .kontakt .knapp { margin-top: 14px; }
 
@@ -134,12 +137,12 @@
     <div class="kjem">
       <div class="merke">Hello</div>
       <h2>Nice to meet you. I'm Sondre.</h2>
-      <p>I'm based in Bergen on the west coast of Norway. I follow public contract awards across Europe and beyond. When a company wins a contract, I ask whether they need suppliers or subcontractors for the job, and if they do, I go looking for companies that can deliver.</p>
-      <p>I also help Norwegian suppliers to the fish-farming industry find customers abroad. I have a trade certificate in aquaculture, so I know what the work on the water looks like.</p>
+      <p>I'm based in Bergen on the west coast of Norway. I follow public contract awards across Europe and beyond, in every industry. When a company wins a contract, I ask whether they need suppliers or subcontractors for the job, and if they do, I go looking for companies that can deliver.</p>
+      <p>Before Indokalo I worked in fish farming, and I have a trade certificate in aquaculture. I know from the inside how much a job depends on the right supplier.</p>
       <p class="sitat">One person, one inbox, and a straight answer.</p>
     </div>
     <figure class="bilete-kort portrett kjem">
-      <img src="sondre.jpg" alt="Sondre Franco Grimen in a dark pinstripe suit by the water at night" loading="lazy">
+      <img src="sondre.jpg" alt="Sondre Franco Grimen in a dark pinstripe suit at night" loading="lazy">
       <figcaption><span class="tittel">Founder</span> Sondre Franco Grimen</figcaption>
     </figure>
   </div>
@@ -163,11 +166,16 @@
   <div class="innhald">
     <div class="kjem">
       <div class="merke">Who I help</div>
-      <h2>Two kinds of companies.</h2>
+      <h2>Every industry.</h2>
+    </div>
+    <div class="bransjar kjem">
+      <span>Construction</span><span>Oil &amp; gas</span><span>Energy</span><span>Maritime</span><span>Transport &amp; logistics</span>
+      <span>IT &amp; tech</span><span>Facilities &amp; cleaning</span><span>Manufacturing</span><span>Healthcare</span><span>Public works</span>
+      <span>Aquaculture</span><span>And anything else a job needs</span>
     </div>
     <div class="to">
       <div class="kort kjem"><h3>You just won a contract</h3><p>Well done. If the job needs something you don't have, tell me what is missing and I'll find companies that can supply it.</p></div>
-      <div class="kort kjem"><h3>You supply the fish-farming industry</h3><p>I talk to fish farms and service companies abroad about what they need, and pass on the enquiries that fit your company.</p></div>
+      <div class="kort kjem"><h3>You sell to other companies</h3><p>Whatever you make or deliver, equipment, materials or services, I pass on enquiries from companies that need it.</p></div>
     </div>
   </div>
 </section>
