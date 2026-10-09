@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Indokalo Connect</title>
-<meta name="description" content="Indokalo Connect. Sondre Grimen in Bergen, Norway, connects companies that need something with companies that can deliver it.">
+<meta name="description" content="Indokalo Connect. I connect companies.">
 <meta property="og:title" content="Indokalo Connect">
-<meta property="og:description" content="I connect companies that need something with companies that can deliver it.">
+<meta property="og:description" content="I connect companies.">
 <meta property="og:image" content="https://dr-grimen.github.io/indokalo/hero.jpg">
 <link rel="preload" as="image" href="hero.jpg">
 <style>
   :root {
     --natt: #071216; --djup: #0c1d22; --kort: rgba(255,255,255,.05); --kant: rgba(255,255,255,.10);
-    --tekst: #eef3f2; --svak: #a9bcbd; --gull: #f2b45a; --sjo: #5fd0d9;
+    --tekst: #eef3f2; --svak: #a9bcbd; --gull: #f2b45a; --sjo: #5fd0d9; --teal: #2fb5a6;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -35,9 +35,13 @@
 
   .innhald { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 24px; }
   .hero .innhald { padding-bottom: 12vh; }
+  .logo { display: inline-block; border-left: 3px solid var(--teal); padding: 2px 0 2px 14px; font-family: Georgia, 'Times New Roman', serif;
+          font-size: 24px; letter-spacing: 4px; color: #fff; line-height: 1.2; }
+  .logo span { color: var(--teal); }
+  .logo.liten { font-size: 16px; letter-spacing: 3px; }
   .merke { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
-           font-size: 13px; color: var(--gull); }
-  .merke::before { content: ""; width: 28px; height: 2px; background: var(--gull); }
+           font-size: 13px; color: var(--teal); }
+  .merke::before { content: ""; width: 28px; height: 2px; background: var(--teal); }
   h1 { font-size: clamp(38px, 7vw, 76px); line-height: 1.02; margin: 18px 0 18px; letter-spacing: -.02em; max-width: 12ch; }
   .ingress { font-size: clamp(18px, 2.2vw, 22px); color: #d8e4e3; max-width: 36ch; margin: 0 0 32px; }
   .knappar { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -58,7 +62,11 @@
   .bilete-kort { position: relative; border-radius: 22px; overflow: hidden; aspect-ratio: 4/5; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
   .bilete-kort img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 1.6s ease; }
   .bilete-kort:hover img { transform: scale(1.12); }
-  .bilete-kort figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 20px; font-size: 14px; color: #f3efe6;
+  .bilete-kort.portrett { aspect-ratio: 864/930; }
+  .bilete-kort.portrett img { object-position: center top; transform: scale(1.02); }
+  .bilete-kort.portrett:hover img { transform: scale(1.06); }
+  .bilete-kort figcaption .tittel { display: block; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal); margin-bottom: 2px; }
+  .bilete-kort figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 22px 18px; font-size: 18px; font-weight: 600; color: #fff;
                             background: linear-gradient(transparent, rgba(0,0,0,.65)); }
 
   .steg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 34px; }
@@ -73,14 +81,14 @@
   .tillit { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start; max-width: 760px; }
   .ikon { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: rgba(95,208,217,.12); color: var(--sjo); }
 
-  .kontakt { text-align: center; padding: 110px 0 120px; background:
-             radial-gradient(60% 80% at 50% 0%, rgba(242,180,90,.16), transparent 70%), var(--natt); }
+  .kontakt { text-align: center; padding: 120px 0 130px; background:
+             linear-gradient(180deg, rgba(7,18,22,.92), rgba(7,18,22,.55) 45%, rgba(7,18,22,.92)), url(fjord.jpg) center/cover no-repeat; }
   .kontakt h2 { max-width: 18ch; margin-left: auto; margin-right: auto; }
   .kontakt .knapp { margin-top: 14px; }
 
   .norsk { max-width: 760px; }
   footer { border-top: 1px solid var(--kant); padding: 30px 0 46px; font-size: 14px; color: var(--svak); }
-  footer .innhald { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+  footer .innhald { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; }
 
   /* things appear as you scroll */
   .kjem { opacity: 0; transform: translateY(26px); transition: opacity .9s ease, transform .9s ease; }
@@ -110,9 +118,9 @@
     <circle cx="900" cy="300" r="2.5" style="animation-delay:3s"/><circle cx="560" cy="230" r="3" style="animation-delay:1.5s"/><circle cx="860" cy="190" r="2.5" style="animation-delay:2.5s"/>
   </svg>
   <div class="innhald">
-    <div class="merke">Indokalo Connect</div>
+    <div class="logo">INDOKALO <span>CONNECT</span></div>
     <h1>Welcome aboard.</h1>
-    <p class="ingress">I connect companies that need something with companies that can deliver it, from Bergen to wherever the job is.</p>
+    <p class="ingress">I connect companies.</p>
     <div class="knappar">
       <a class="knapp full" href="mailto:connect@indokalo.com">Write to me</a>
       <a class="knapp tom" href="#how">How it works</a>
@@ -130,9 +138,9 @@
       <p>I also help Norwegian suppliers to the fish-farming industry find customers abroad. I have a trade certificate in aquaculture, so I know what the work on the water looks like.</p>
       <p class="sitat">One person, one inbox, and a straight answer.</p>
     </div>
-    <figure class="bilete-kort kjem">
-      <img src="fjord.jpg" alt="Fish farm pens and a work boat on a Norwegian fjord at golden hour" loading="lazy">
-      <figcaption>Where I come from: the Norwegian coast, where the fish farms are.</figcaption>
+    <figure class="bilete-kort portrett kjem">
+      <img src="sondre.jpg" alt="Sondre Franco Grimen in a dark pinstripe suit by the water at night" loading="lazy">
+      <figcaption><span class="tittel">Founder</span> Sondre Franco Grimen</figcaption>
     </figure>
   </div>
 </section>
@@ -187,16 +195,10 @@
   </div>
 </section>
 
-<section class="djup">
-  <div class="innhald norsk kjem" lang="nb">
-    <div class="merke">På norsk</div>
-    <h2>Velkommen.</h2>
-    <p>Indokalo kobler bedrifter som trenger noe, med bedrifter som kan levere det. Jeg hjelper norske leverandører til havbruk med å finne kunder i utlandet, og jeg hjelper bedrifter som har vunnet offentlige kontrakter med å finne leverandører og underleverandører. Alt avtales skriftlig før jeg setter noen i kontakt. Skriv til <a href="mailto:connect@indokalo.com">connect@indokalo.com</a>.</p>
-  </div>
-</section>
 
 <footer>
   <div class="innhald">
+    <span class="logo liten">INDOKALO <span>CONNECT</span></span>
     <span>Indokalo AS · Norwegian org. no. 937 822 553</span>
     <span>Nygardsvegen 36, 5419 Fitjar, Norway</span>
   </div>
