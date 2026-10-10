@@ -11,15 +11,16 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
   const fallback = document.getElementById('form-fallback');
   const fallbackLink = document.getElementById('fallback-link');
   const another = document.getElementById('another-request');
+  const optionalDetails = document.getElementById('optional-details');
   let pending = false;
   let lastContent = '';
   let submissionId = '';
   const INTENTS = {
-    buyer: { label: 'What do you need?', hint: 'Include the product, service or partner you need, project location, quantity or scope, and key requirements. At least 20 characters.', subject: 'Supplier or partner request', opening: 'I am looking for a supplier or project partner.' },
-    supplier: { label: 'What can your company supply?', hint: 'Include your products or services, target customers, countries served, capacity and relevant references. At least 20 characters.', subject: 'Commercial supplier introduction', opening: 'I would like to discuss finding customers for my products or services.' },
-    business_seller: { label: 'What would you like to explore about selling?', hint: 'Start with your role, sector, country and the help you want. You can keep the sale target unnamed. Leave out financial records, asking prices, confidential details and other people’s contacts. At least 20 characters.', subject: 'Business sale enquiry', opening: 'I would like an initial conversation about a possible business sale and suitable adviser support.' },
-    business_buyer: { label: 'What kind of business are you looking for?', hint: 'Outline your role, target sector and countries, and whether you have an adviser. Keep this general: no bids, investment instructions or confidential target details. At least 20 characters.', subject: 'Business acquisition enquiry', opening: 'I would like an initial conversation about acquisition plans and suitable adviser support.' },
-    merger: { label: 'What would a merger need to achieve?', hint: 'Outline your role, sector, countries and business objective. Keep potential counterparts unnamed and leave out financial records or confidential plans. At least 20 characters.', subject: 'Merger enquiry', opening: 'I would like an initial conversation about a possible merger and suitable adviser support.' }
+    buyer: { label: 'What do you need?', hint: 'What are you looking for, and where? A short outline is enough. At least 20 characters.', subject: 'Supplier or partner request', opening: 'I am looking for a supplier or project partner.' },
+    supplier: { label: 'What can your company supply?', hint: 'What do you offer, and who would you like to reach? A short outline is enough. At least 20 characters.', subject: 'Commercial supplier introduction', opening: 'I would like to discuss finding customers for my products or services.' },
+    business_seller: { label: 'What would you like to explore about selling?', hint: 'Tell me your role and what you’re considering. Keep the business unnamed and leave out confidential details. At least 20 characters.', subject: 'Business sale enquiry', opening: 'I would like an initial conversation about a possible business sale and suitable adviser support.' },
+    business_buyer: { label: 'What kind of business are you looking for?', hint: 'What kind of business, and in which countries? Keep it general and leave out confidential details. At least 20 characters.', subject: 'Business acquisition enquiry', opening: 'I would like an initial conversation about acquisition plans and suitable adviser support.' },
+    merger: { label: 'What would a merger need to achieve?', hint: 'Tell me your role and what you hope to achieve. Keep potential counterparts unnamed. At least 20 characters.', subject: 'Merger enquiry', opening: 'I would like an initial conversation about a possible merger and suitable adviser support.' }
   };
 
   function intent() { return form.elements.type.value; }
@@ -29,7 +30,7 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
     const ownership = ['business_seller', 'business_buyer', 'merger'].includes(intent());
     document.getElementById('requirements-label').textContent = route.label;
     document.getElementById('requirements-hint').textContent = route.hint;
-    document.getElementById('company-label').textContent = ownership ? 'Your organisation or role' : 'Company';
+    document.getElementById('company-label').textContent = ownership ? 'Your organisation or role (optional)' : 'Company (optional)';
     document.getElementById('company-hint').hidden = !ownership;
     document.getElementById('ownership-note').hidden = !ownership;
     const label = document.getElementById('timing-label');
@@ -38,11 +39,12 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
     optional.className = 'optional';
     optional.textContent = '(optional)';
     label.appendChild(optional);
-    document.getElementById('timing').placeholder = supplier ? 'For example: available now, or 8-week lead time' : 'For example: January 2027, or still exploring';
+    document.getElementById('timing').placeholder = supplier ? 'Available now, or an estimated lead time' : 'A date, or still exploring';
   }
 
   function resetForm() {
     form.reset();
+    optionalDetails.open = false;
     fields.hidden = false;
     status.textContent = '';
     status.removeAttribute('data-state');
@@ -57,12 +59,11 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
     link.addEventListener('click', () => {
       if (pending) return;
       if (fields.hidden) resetForm();
-      const choice = form.querySelector('input[name="type"][value="' + link.dataset.intent + '"]');
-      if (choice) choice.checked = true;
+      if (Object.hasOwn(INTENTS, link.dataset.intent)) form.elements.type.value = link.dataset.intent;
       updateIntent();
     });
   });
-  form.querySelectorAll('[name="type"]').forEach(radio => radio.addEventListener('change', updateIntent));
+  form.elements.type.addEventListener('change', updateIntent);
   another.addEventListener('click', () => { resetForm(); form.elements.name.focus(); });
 
   function newId() {
@@ -80,9 +81,10 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
     const subject = route.subject + ' — Indokalo Connect';
     const body = [
       route.opening, '',
-      'Name: ' + data.name, 'Company: ' + data.company, 'Business email: ' + data.email,
-      'Company country: ' + data.country,
-      'Sector: ' + form.elements.sector.options[form.elements.sector.selectedIndex].text,
+      'Name: ' + data.name, 'Email: ' + data.email,
+      ...(data.company ? ['Company / role: ' + data.company] : []),
+      ...(data.country ? ['Country: ' + data.country] : []),
+      ...(data.sector ? ['Sector: ' + form.elements.sector.options[form.elements.sector.selectedIndex].text] : []),
       '', data.requirements, '', 'Timing / availability: ' + (data.timing || 'Not specified'), '',
       'Please contact me about this request.'
     ].join('\n');
@@ -94,9 +96,17 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
     if (pending) return;
     ['name', 'company', 'email', 'country', 'requirements', 'timing'].forEach(key => { form.elements[key].value = form.elements[key].value.trim(); });
     // Native validity also gives keyboard and screen-reader users a specific field to correct.
-    const minFields = { name: 2, company: 2, country: 2, requirements: 20 };
+    const minFields = { name: 2, requirements: 20 };
     for (const [key, min] of Object.entries(minFields)) {
       form.elements[key].setCustomValidity(form.elements[key].value.length < min ? `Please enter at least ${min} characters.` : '');
+    }
+    for (const key of ['company', 'country']) {
+      const field = form.elements[key];
+      field.setCustomValidity(field.value && field.value.length < 2 ? 'Please enter at least 2 characters, or leave this field empty.' : '');
+    }
+    // Reveal an invalid optional field before the browser tries to focus it.
+    if (['company', 'country', 'sector', 'timing'].some(key => !form.elements[key].checkValidity())) {
+      optionalDetails.open = true;
     }
     if (!form.reportValidity()) return;
     const data = { version: 1, type: intent(), name: form.elements.name.value, email: form.elements.email.value,
@@ -129,7 +139,7 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
       const reference = typeof result.reference === 'string' && /^IC-[a-zA-Z0-9-]{1,40}$/.test(result.reference) ? result.reference : '';
       fields.hidden = true;
       status.dataset.state = 'success';
-      status.textContent = 'Request received. Thank you.\nI’ll review your details and reply to the business email you provided.' + (reference ? '\nReference: ' + reference : '') + '\nThis confirms receipt of an initial enquiry. It does not create an introduction, mandate, bid or agreement.';
+      status.textContent = 'Request received. Thank you.\nI’ll review your details and reply to the email address you provided.' + (reference ? '\nReference: ' + reference : '') + '\nThis confirms receipt of an initial enquiry. It does not create an introduction, mandate, bid or agreement.';
       another.hidden = false;
       status.focus();
     } catch (error) {
@@ -155,9 +165,9 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
   const requestedType = new URLSearchParams(window.location.search).get('type');
   const hasDraft = ['name', 'company', 'email', 'country', 'sector', 'requirements', 'timing']
     .some(key => form.elements[key].value.trim()) || form.elements.consent.checked
-    || Array.from(form.querySelectorAll('[name="type"]')).some(radio => radio.checked !== radio.defaultChecked);
+    || form.elements.type.value !== (Array.from(form.elements.type.options).find(option => option.defaultSelected)?.value || 'buyer');
   if (!hasDraft && Object.hasOwn(INTENTS, requestedType)) {
-    form.querySelector('input[name="type"][value="' + requestedType + '"]').checked = true;
+    form.elements.type.value = requestedType;
   }
   submit.disabled = false;
   updateIntent();

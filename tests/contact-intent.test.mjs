@@ -4,32 +4,100 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const source = readFileSync(new URL('../contact.js', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const intentValues = ['buyer', 'supplier', 'business_seller', 'business_buyer', 'merger'];
+const optionalKeys = ['company', 'country', 'sector', 'timing'];
+const validDraft = overrides => ({
+  name: { value: 'Alex Example' }, email: { value: 'alex@example.com' },
+  requirements: { value: 'I need a supplier for a new packaging project.' },
+  consent: { checked: true }, ...overrides
+});
+const received = reference => ({ ok: true, status: 200, json: async () => ({ ok: true, reference }) });
 
-// Exercise the full browser script with a small DOM double. No endpoint is called.
-function page(search = '', draft = {}, chosenType = 'buyer') {
+// Run the complete browser script with a small DOM double. Fetch is always mocked;
+// these tests cannot create real enquiries or contact the public endpoint.
+function page(search = '', draft = {}, chosenType = 'buyer', respond) {
+  const nodes = new Map();
+  const requests = [];
+  const timers = new Map();
+  let focused = null;
+  let uuidCount = 0;
   function node() {
-    return { value: '', checked: false, hidden: false, handlers: {}, dataset: {},
+    return { value: '', checked: false, hidden: false, disabled: false, open: false,
+      handlers: {}, dataset: {}, attributes: {}, validationMessage: '',
       addEventListener(type, fn) { this.handlers[type] = fn; },
       replaceChildren(...children) { this.children = children; },
-      appendChild(child) { (this.children ??= []).push(child); } };
+      appendChild(child) { (this.children ??= []).push(child); },
+      setAttribute(key, value) { this.attributes[key] = value; },
+      removeAttribute(key) { delete this.attributes[key]; if (key === 'data-state') delete this.dataset.state; },
+      focus() { focused = this; },
+      setCustomValidity(message) { this.validationMessage = message; },
+      checkValidity() {
+        return !this.validationMessage && (!this.required || (this.type === 'checkbox' ? this.checked : !!this.value))
+          && (this.type !== 'email' || !this.value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value));
+      },
+      closest(selector) { return selector === 'details' && optionalKeys.includes(this.name) ? get('optional-details') : null; }
+    };
   }
-  const nodes = new Map();
   const get = id => { if (!nodes.has(id)) nodes.set(id, node()); return nodes.get(id); };
   const form = get('contact-form');
-  form.elements = Object.fromEntries(['name', 'company', 'email', 'country', 'sector', 'requirements', 'timing', 'consent']
-    .map(key => [key, { ...node(), ...(draft[key] || {}) }]));
-  let selected = chosenType;
-  const radios = ['buyer', 'supplier', 'business_seller', 'business_buyer', 'merger'].map(value => ({ ...node(), value, defaultChecked: value === 'buyer',
-    get checked() { return selected === value; },
-    set checked(checked) { if (checked) selected = value; } }));
-  form.elements.type = { get value() { return selected; } };
-  form.querySelectorAll = selector => { assert.equal(selector, '[name="type"]'); return radios; };
-  form.querySelector = selector => radios.find(radio => selector === `input[name="type"][value="${radio.value}"]`) || null;
-  const links = ['buyer', 'supplier', 'business_seller', 'business_buyer', 'merger'].map(intent => ({ ...node(), dataset: { intent } }));
+  const fieldKeys = ['name', 'company', 'email', 'country', 'sector', 'requirements', 'timing', 'consent', 'website'];
+  form.elements = Object.fromEntries(fieldKeys.map(key => {
+    const tag = html.match(new RegExp('<(?:input|select|textarea)\\b[^>]*\\bname="' + key + '"[^>]*>'))?.[0];
+    assert.ok(tag, `The page must include the ${key} field`);
+    const field = Object.assign(get(key), { name: key, required: /\srequired(?:\s|>)/.test(tag),
+      type: tag.match(/\btype="([^"]+)"/)?.[1] || 'text' }, draft[key]);
+    return [key, field];
+  }));
+  const type = get('request-type');
+  type.value = chosenType;
+  type.options = intentValues.map(value => ({ value, defaultSelected: value === 'buyer',
+    get selected() { return type.value === value; } }));
+  Object.defineProperty(type, 'selectedIndex', { get: () => intentValues.indexOf(type.value) });
+  form.elements.type = type;
+  const sector = form.elements.sector;
+  sector.options = [{ value: '', text: 'Choose a sector' }, { value: 'manufacturing', text: 'Manufacturing & equipment' }];
+  Object.defineProperty(sector, 'selectedIndex', { get: () => sector.options.findIndex(option => option.value === sector.value) });
+  const controls = [...Object.values(form.elements), get('submit-button')];
+  const matching = (items, selector) => selector === ':invalid' ? items.filter(item => !item.checkValidity()) : items;
+  form.querySelectorAll = selector => matching(controls, selector);
+  form.querySelector = selector => matching(controls, selector)[0] || null;
+  get('form-fields').querySelectorAll = selector => matching(controls, selector);
+  const optional = get('optional-details');
+  optional.querySelectorAll = selector => matching(optionalKeys.map(key => form.elements[key]), selector);
+  optional.querySelector = selector => optional.querySelectorAll(selector)[0] || null;
+  optional.contains = field => optionalKeys.some(key => form.elements[key] === field);
+  form.reportValidity = () => {
+    const invalid = controls.find(control => !control.checkValidity());
+    if (invalid) invalid.focus();
+    return !invalid;
+  };
+  form.checkValidity = () => controls.every(control => control.checkValidity());
+  form.reset = () => {
+    fieldKeys.forEach(key => { form.elements[key].value = ''; form.elements[key].checked = false; });
+    type.value = 'buyer';
+  };
+  get('form-fallback').hidden = true;
+  get('another-request').hidden = true;
+  const links = intentValues.map(intent => ({ ...node(), dataset: { intent } }));
   const document = { getElementById: get, createTextNode: text => ({ textContent: text }), createElement: node,
     querySelectorAll(selector) { assert.equal(selector, '[data-intent]'); return links; } };
-  vm.runInNewContext(source, { document, window: { location: { search } }, URLSearchParams });
-  return { form, get, select: type => links.find(link => link.dataset.intent === type).handlers.click() };
+  vm.runInNewContext(source, { document, window: { location: { search } }, URLSearchParams,
+    AbortController, setTimeout(fn) { const id = timers.size + 1; timers.set(id, fn); return id; },
+    clearTimeout(id) { timers.delete(id); },
+    crypto: { randomUUID() { return `00000000-0000-4000-8000-${String(++uuidCount).padStart(12, '0')}`; } },
+    fetch: async (url, options) => {
+      const request = { url, ...options, data: JSON.parse(options.body) };
+      requests.push(request);
+      if (!respond) throw new Error('No mock response configured');
+      return respond(request, requests.length);
+    }
+  });
+  return { form, get, requests, timers, controls, get focused() { return focused; },
+    select: value => links.find(link => link.dataset.intent === value).handlers.click(),
+    change: value => { type.value = value; type.handlers.change(); },
+    input: key => form.handlers.input({ target: form.elements[key] }),
+    submit: () => form.handlers.submit({ preventDefault() {} }) };
 }
 
 test('landing links choose buyer or supplier and show the corresponding prompt', () => {
@@ -91,4 +159,164 @@ test('ownership routes show initial-enquiry prompts and retain saved drafts', ()
 
 test('a restored ownership choice is not replaced by a different URL', () => {
   assert.equal(page('?type=supplier', {}, 'merger').form.elements.type.value, 'merger');
+});
+
+test('changing the native select updates the prompt and preserves the brief', () => {
+  const p = page('', validDraft());
+  p.change('supplier');
+  assert.equal(p.get('requirements-label').textContent, 'What can your company supply?');
+  p.change('merger');
+  assert.equal(p.get('ownership-note').hidden, false);
+  assert.equal(p.form.elements.requirements.value, validDraft().requirements.value);
+});
+
+test('a short enquiry sends with only name, email, brief and consent', async () => {
+  const p = page('', validDraft({ name: { value: '  Alex Example  ' }, company: { value: '  ' }, country: { value: '  ' } }), 'buyer',
+    () => received('IC-EXAMPLE'));
+  await p.submit();
+  assert.equal(p.requests.length, 1);
+  const request = p.requests[0];
+  assert.equal(request.method, 'POST');
+  assert.equal(request.credentials, 'omit');
+  assert.equal(request.data.name, 'Alex Example');
+  assert.equal(request.data.email, 'alex@example.com');
+  assert.equal(request.data.type, 'buyer');
+  assert.equal(request.data.consent, true);
+  for (const key of optionalKeys) assert.equal(request.data[key], '', `${key} can be omitted`);
+  assert.equal(p.get('form-status').dataset.state, 'success');
+  assert.match(p.get('form-status').textContent, /IC-EXAMPLE/);
+  assert.equal(p.get('form-fields').hidden, true);
+  assert.equal(p.get('form-fallback').hidden, true);
+  assert.equal(p.get('another-request').hidden, false);
+  assert.equal(p.focused, p.get('form-status'));
+  assert.equal(p.timers.size, 0);
+});
+
+test('required details are validated before a request is sent', async () => {
+  for (const [key, invalid] of [
+    ['name', { value: ' A ' }], ['requirements', { value: 'Brief is too short' }],
+    ['email', { value: 'invalid-address' }], ['email', { value: '' }], ['consent', { checked: false }]
+  ]) {
+    const p = page('', validDraft({ [key]: invalid }), 'buyer', () => received('IC-UNEXPECTED'));
+    await p.submit();
+    assert.equal(p.requests.length, 0, `${key} must be corrected before sending`);
+    assert.equal(p.focused, p.form.elements[key]);
+    assert.equal(p.get('form-fields').hidden, false);
+  }
+});
+
+test('an invalid optional detail is revealed and can be corrected or removed', async () => {
+  for (const key of ['company', 'country']) {
+    for (const correction of ['', 'Norway']) {
+      const p = page('', validDraft({ [key]: { value: ' X ' } }), 'buyer', () => received('IC-CORRECTED'));
+      assert.equal(p.get('optional-details').open, false);
+      await p.submit();
+      assert.equal(p.requests.length, 0);
+      assert.equal(p.get('optional-details').open, true, `Reveal the invalid ${key} field`);
+      assert.match(p.form.elements[key].validationMessage, /at least 2/);
+      assert.equal(p.focused, p.form.elements[key]);
+      p.form.elements[key].value = correction;
+      p.input(key);
+      assert.equal(p.form.elements[key].validationMessage, '');
+      await p.submit();
+      assert.equal(p.requests.length, 1);
+      assert.equal(p.requests[0].data[key], correction);
+      assert.equal(p.get('form-status').dataset.state, 'success');
+    }
+  }
+});
+
+test('an uncertain submission retains the draft, offers email and retries with the same id', async () => {
+  const p = page('', validDraft(), 'supplier', (_request, attempt) => {
+    if (attempt === 1) throw new Error('Connection interrupted');
+    return received('IC-RETRIED');
+  });
+  await p.submit();
+  assert.equal(p.get('form-status').dataset.state, 'error');
+  assert.equal(p.get('form-fields').hidden, false);
+  assert.equal(p.get('form-fallback').hidden, false);
+  assert.equal(p.form.elements.requirements.value, validDraft().requirements.value);
+  assert.equal(p.form.elements.consent.checked, true);
+  const email = new URL(p.get('fallback-link').href);
+  assert.equal(email.protocol, 'mailto:');
+  assert.equal(email.pathname, 'connect@indokalo.com');
+  assert.match(email.searchParams.get('subject'), /Commercial supplier introduction/);
+  assert.match(email.searchParams.get('body'), /I need a supplier for a new packaging project\./);
+  assert.doesNotMatch(email.searchParams.get('body'), /undefined|null/);
+  assert.ok(p.controls.every(control => !control.disabled));
+  assert.equal(p.form.attributes['aria-busy'], undefined);
+  await p.submit();
+  assert.equal(p.requests.length, 2);
+  assert.equal(p.requests[0].data.submission_id, p.requests[1].data.submission_id);
+  assert.equal(p.get('form-status').dataset.state, 'success');
+  assert.equal(p.get('form-fallback').hidden, true);
+});
+
+test('editing the brief after an error creates a new submission id', async () => {
+  const p = page('', validDraft(), 'buyer', () => { throw new Error('Offline'); });
+  await p.submit();
+  p.form.elements.requirements.value = 'A revised request with a different project scope.';
+  p.input('requirements');
+  await p.submit();
+  assert.equal(p.requests.length, 2);
+  assert.notEqual(p.requests[0].data.submission_id, p.requests[1].data.submission_id);
+});
+
+test('HTTP failures and unconfirmed responses do not show a success receipt', async () => {
+  const cases = [
+    { response: { ok: false, status: 429, json: async () => ({ ok: false }) }, message: /busy right now/ },
+    { response: { ok: false, status: 400, json: async () => ({ ok: false }) }, message: /check your details/ },
+    { response: { ok: false, status: 503, json: async () => ({ ok: false }) }, message: /couldn’t confirm/ },
+    { response: { ok: true, status: 200, json: async () => ({ ok: false }) }, message: /couldn’t confirm/ },
+    { response: { ok: true, status: 200, json: async () => { throw new Error('Invalid JSON'); } }, message: /couldn’t confirm/ }
+  ];
+  for (const { response, message } of cases) {
+    const p = page('', validDraft(), 'buyer', () => response);
+    await p.submit();
+    assert.equal(p.requests.length, 1);
+    assert.equal(p.get('form-status').dataset.state, 'error');
+    assert.match(p.get('form-status').textContent, message);
+    assert.equal(p.get('form-fields').hidden, false);
+    assert.equal(p.get('form-fallback').hidden, false);
+    assert.equal(p.get('another-request').hidden, true);
+    assert.ok(p.controls.every(control => !control.disabled));
+    assert.equal(p.timers.size, 0);
+  }
+});
+
+test('a pending request blocks double submission and route changes', async () => {
+  let resolve;
+  const p = page('', validDraft(), 'buyer', () => new Promise(done => { resolve = done; }));
+  const pending = p.submit();
+  assert.equal(p.requests.length, 1);
+  assert.equal(p.get('form-status').dataset.state, 'pending');
+  assert.equal(p.form.attributes['aria-busy'], 'true');
+  assert.ok(p.controls.every(control => control.disabled));
+  await p.submit();
+  p.select('merger');
+  assert.equal(p.requests.length, 1);
+  assert.equal(p.form.elements.type.value, 'buyer');
+  resolve(received('IC-ONCE'));
+  await pending;
+  assert.equal(p.get('form-status').dataset.state, 'success');
+  assert.equal(p.form.attributes['aria-busy'], undefined);
+  assert.ok(p.controls.every(control => !control.disabled));
+});
+
+test('another enquiry clears the receipt and starts with a fresh submission id', async () => {
+  const p = page('', validDraft(), 'merger', () => received('IC-RECEIVED'));
+  await p.submit();
+  p.get('another-request').handlers.click();
+  assert.equal(p.get('form-fields').hidden, false);
+  assert.equal(p.get('form-status').textContent, '');
+  assert.equal(p.get('form-status').dataset.state, undefined);
+  assert.equal(p.get('another-request').hidden, true);
+  assert.equal(p.form.elements.type.value, 'buyer');
+  assert.equal(p.form.elements.name.value, '');
+  assert.equal(p.form.elements.consent.checked, false);
+  assert.equal(p.focused, p.form.elements.name);
+  for (const [key, field] of Object.entries(validDraft())) Object.assign(p.form.elements[key], field);
+  await p.submit();
+  assert.equal(p.requests.length, 2);
+  assert.notEqual(p.requests[0].data.submission_id, p.requests[1].data.submission_id);
 });
