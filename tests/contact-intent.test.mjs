@@ -19,13 +19,13 @@ function page(search = '', draft = {}, chosenType = 'buyer') {
   form.elements = Object.fromEntries(['name', 'company', 'email', 'country', 'sector', 'requirements', 'timing', 'consent']
     .map(key => [key, { ...node(), ...(draft[key] || {}) }]));
   let selected = chosenType;
-  const radios = ['buyer', 'supplier'].map(value => ({ ...node(), value, defaultChecked: value === 'buyer',
+  const radios = ['buyer', 'supplier', 'business_seller', 'business_buyer', 'merger'].map(value => ({ ...node(), value, defaultChecked: value === 'buyer',
     get checked() { return selected === value; },
     set checked(checked) { if (checked) selected = value; } }));
   form.elements.type = { get value() { return selected; } };
   form.querySelectorAll = selector => { assert.equal(selector, '[name="type"]'); return radios; };
   form.querySelector = selector => radios.find(radio => selector === `input[name="type"][value="${radio.value}"]`) || null;
-  const links = ['buyer', 'supplier'].map(intent => ({ ...node(), dataset: { intent } }));
+  const links = ['buyer', 'supplier', 'business_seller', 'business_buyer', 'merger'].map(intent => ({ ...node(), dataset: { intent } }));
   const document = { getElementById: get, createTextNode: text => ({ textContent: text }), createElement: node,
     querySelectorAll(selector) { assert.equal(selector, '[data-intent]'); return links; } };
   vm.runInNewContext(source, { document, window: { location: { search } }, URLSearchParams });
@@ -71,4 +71,24 @@ test('an explicit in-page route choice changes the prompt without clearing a dra
   assert.equal(p.get('requirements-label').textContent, 'What can your company supply?');
   assert.equal(p.form.elements.requirements.value, 'Keep my specific project requirements');
   assert.equal(p.form.elements.company.value, 'My company');
+});
+
+test('ownership routes show initial-enquiry prompts and retain saved drafts', () => {
+  for (const type of ['business_seller', 'business_buyer', 'merger']) {
+    const p = page(`?type=${type}`);
+    assert.equal(p.form.elements.type.value, type);
+    assert.equal(p.get('ownership-note').hidden, false);
+    assert.equal(p.get('company-hint').hidden, false);
+    assert.notEqual(p.get('requirements-label').textContent, 'What do you need?');
+    const saved = page(`?type=${type}`, { requirements: { value: 'Saved supplier brief' } });
+    assert.equal(saved.form.elements.type.value, 'buyer');
+    assert.equal(saved.form.elements.requirements.value, 'Saved supplier brief');
+    p.select('buyer');
+    assert.equal(p.get('ownership-note').hidden, true);
+    assert.equal(p.get('company-hint').hidden, true);
+  }
+});
+
+test('a restored ownership choice is not replaced by a different URL', () => {
+  assert.equal(page('?type=supplier', {}, 'merger').form.elements.type.value, 'merger');
 });

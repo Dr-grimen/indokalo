@@ -14,16 +14,26 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
   let pending = false;
   let lastContent = '';
   let submissionId = '';
+  const INTENTS = {
+    buyer: { label: 'What do you need?', hint: 'Include the product, service or partner you need, project location, quantity or scope, and key requirements. At least 20 characters.', subject: 'Supplier or partner request', opening: 'I am looking for a supplier or project partner.' },
+    supplier: { label: 'What can your company supply?', hint: 'Include your products or services, target customers, countries served, capacity and relevant references. At least 20 characters.', subject: 'Commercial supplier introduction', opening: 'I would like to discuss finding customers for my products or services.' },
+    business_seller: { label: 'What would you like to explore about selling?', hint: 'Start with your role, sector, country and the help you want. You can keep the sale target unnamed. Leave out financial records, asking prices, confidential details and other people’s contacts. At least 20 characters.', subject: 'Business sale enquiry', opening: 'I would like an initial conversation about a possible business sale and suitable adviser support.' },
+    business_buyer: { label: 'What kind of business are you looking for?', hint: 'Outline your role, target sector and countries, and whether you have an adviser. Keep this general: no bids, investment instructions or confidential target details. At least 20 characters.', subject: 'Business acquisition enquiry', opening: 'I would like an initial conversation about acquisition plans and suitable adviser support.' },
+    merger: { label: 'What would a merger need to achieve?', hint: 'Outline your role, sector, countries and business objective. Keep potential counterparts unnamed and leave out financial records or confidential plans. At least 20 characters.', subject: 'Merger enquiry', opening: 'I would like an initial conversation about a possible merger and suitable adviser support.' }
+  };
 
   function intent() { return form.elements.type.value; }
   function updateIntent() {
     const supplier = intent() === 'supplier';
-    document.getElementById('requirements-label').textContent = supplier ? 'What can your company supply?' : 'What do you need?';
-    document.getElementById('requirements-hint').textContent = supplier
-      ? 'Include your products or services, the countries you serve, and any key capabilities or certifications. At least 20 characters.'
-      : 'Include the product, service or partner you need, the project location and any key requirements. Budget or quantity is useful if known. At least 20 characters.';
+    const route = INTENTS[intent()] || INTENTS.buyer;
+    const ownership = ['business_seller', 'business_buyer', 'merger'].includes(intent());
+    document.getElementById('requirements-label').textContent = route.label;
+    document.getElementById('requirements-hint').textContent = route.hint;
+    document.getElementById('company-label').textContent = ownership ? 'Your organisation or role' : 'Company';
+    document.getElementById('company-hint').hidden = !ownership;
+    document.getElementById('ownership-note').hidden = !ownership;
     const label = document.getElementById('timing-label');
-    label.replaceChildren(document.createTextNode(supplier ? 'Availability or lead time ' : 'When is it needed? '));
+    label.replaceChildren(document.createTextNode(ownership ? 'When would you like to talk? ' : supplier ? 'Availability or lead time ' : 'When is it needed? '));
     const optional = document.createElement('span');
     optional.className = 'optional';
     optional.textContent = '(optional)';
@@ -66,9 +76,10 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
   }
 
   function prepareFallback(data) {
-    const subject = data.type === 'supplier' ? 'Supplier introduction — Indokalo Connect' : 'Supplier or partner request — Indokalo Connect';
+    const route = INTENTS[data.type] || INTENTS.buyer;
+    const subject = route.subject + ' — Indokalo Connect';
     const body = [
-      data.type === 'supplier' ? 'I would like to introduce my business.' : 'I am looking for a supplier or project partner.', '',
+      route.opening, '',
       'Name: ' + data.name, 'Company: ' + data.company, 'Business email: ' + data.email,
       'Company country: ' + data.country,
       'Sector: ' + form.elements.sector.options[form.elements.sector.selectedIndex].text,
@@ -118,7 +129,7 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
       const reference = typeof result.reference === 'string' && /^IC-[a-zA-Z0-9-]{1,40}$/.test(result.reference) ? result.reference : '';
       fields.hidden = true;
       status.dataset.state = 'success';
-      status.textContent = 'Request received. Thank you.\nI’ll review your details and reply to the business email you provided.' + (reference ? '\nReference: ' + reference : '') + '\nThis confirms receipt of your enquiry, not an introduction or a supplier agreement.';
+      status.textContent = 'Request received. Thank you.\nI’ll review your details and reply to the business email you provided.' + (reference ? '\nReference: ' + reference : '') + '\nThis confirms receipt of an initial enquiry. It does not create an introduction, mandate, bid or agreement.';
       another.hidden = false;
       status.focus();
     } catch (error) {
@@ -145,7 +156,7 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
   const hasDraft = ['name', 'company', 'email', 'country', 'sector', 'requirements', 'timing']
     .some(key => form.elements[key].value.trim()) || form.elements.consent.checked
     || Array.from(form.querySelectorAll('[name="type"]')).some(radio => radio.checked !== radio.defaultChecked);
-  if (!hasDraft && (requestedType === 'buyer' || requestedType === 'supplier')) {
+  if (!hasDraft && Object.hasOwn(INTENTS, requestedType)) {
     form.querySelector('input[name="type"][value="' + requestedType + '"]').checked = true;
   }
   submit.disabled = false;
