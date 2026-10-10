@@ -205,6 +205,21 @@ button { font: inherit; }
 .privacy-main h2 { font-size: 24px; margin-top: 42px; }
 .privacy-main li { color: #d3dfde; margin: 8px 0; }
 .privacy-main a { overflow-wrap: anywhere; }
+.guide-header .innhald { flex-wrap: wrap; }
+.guide-main { max-width: 1040px; }
+.guide-main h1 { max-width: 22ch; }
+.guide-main > .ingress { max-width: 62ch; }
+.guide-main section { padding: 0; margin-top: 46px; }
+.guide-main h2 { margin-top: 0; }
+.guide-main .to { gap: 22px; align-items: stretch; }
+.guide-main .kort { padding: 26px; }
+.guide-main .kort h3 { font-size: 21px; margin: 12px 0; }
+.guide-main .kort p { font-size: 16px; }
+.guide-main .tal { font-size: 11px; }
+.guide-list { padding-left: 22px; max-width: 78ch; }
+.guide-list strong { color: var(--tekst); }
+.guide-main .knappar { margin-top: 26px; }
+.guide-main .fee-note { margin-top: 28px; }
 @media (max-width: 980px) {
   .request-layout { grid-template-columns: .75fr 1.25fr; gap: 30px; }
   .form-panel { padding: 26px; }

@@ -140,6 +140,14 @@ const CONTACT_ENDPOINT = 'https://bob-app-3ul.pages.dev/api/indokalo-request';
   });
   // Clear a previous minimum-length message as the visitor corrects the field.
   form.addEventListener('input', event => { if (typeof event.target.setCustomValidity === 'function') event.target.setCustomValidity(''); });
+  // Landing-page links can choose a route, but must not replace a restored draft.
+  const requestedType = new URLSearchParams(window.location.search).get('type');
+  const hasDraft = ['name', 'company', 'email', 'country', 'sector', 'requirements', 'timing']
+    .some(key => form.elements[key].value.trim()) || form.elements.consent.checked
+    || Array.from(form.querySelectorAll('[name="type"]')).some(radio => radio.checked !== radio.defaultChecked);
+  if (!hasDraft && (requestedType === 'buyer' || requestedType === 'supplier')) {
+    form.querySelector('input[name="type"][value="' + requestedType + '"]').checked = true;
+  }
   submit.disabled = false;
   updateIntent();
 })();
