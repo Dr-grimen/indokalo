@@ -3,261 +3,98 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Indokalo Connect</title>
-<meta name="description" content="Indokalo Connect. I connect companies.">
-<meta property="og:title" content="Indokalo Connect">
-<meta property="og:description" content="I connect companies.">
-<meta property="og:image" content="https://dr-grimen.github.io/indokalo/hero.jpg">
+<meta name="theme-color" content="#071216">
+<title>Find suppliers and project partners worldwide | Indokalo Connect</title>
+<meta name="description" content="Tell Indokalo Connect what your business needs, or what it can supply. Sondre Grimen helps companies explore supplier and project partner introductions worldwide.">
+<link rel="canonical" href="https://indokalo.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://indokalo.com/">
+<meta property="og:title" content="Find suppliers and project partners worldwide | Indokalo Connect">
+<meta property="og:description" content="A specific request. A relevant company. An introduction when both sides are ready.">
+<meta property="og:image" content="https://indokalo.com/hero.jpg">
+<meta property="og:image:alt" content="A Norwegian harbour at blue hour">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preload" as="image" href="hero.jpg">
-<style>
-  :root {
-    --natt: #071216; --djup: #0c1d22; --kort: rgba(255,255,255,.05); --kant: rgba(255,255,255,.10);
-    --tekst: #eef3f2; --svak: #a9bcbd; --gull: #f2b45a; --sjo: #5fd0d9; --teal: #2fb5a6;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { margin: 0; background: var(--natt); color: var(--tekst);
-         font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
-  a { color: var(--sjo); }
-
-  /* the hero: the harbour at blue hour, slowly drifting */
-  .hero { position: relative; min-height: 100svh; display: flex; align-items: flex-end; overflow: hidden; isolation: isolate; }
-  .hero-bilete { position: absolute; inset: -4%; background: url(hero.jpg) center/cover no-repeat; z-index: -2;
-                 animation: drift 38s ease-in-out infinite alternate; }
-  .hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
-                 background: linear-gradient(180deg, rgba(7,18,22,.15) 0%, rgba(7,18,22,.35) 45%, rgba(7,18,22,.92) 88%, var(--natt) 100%); }
-  @keyframes drift { from { transform: scale(1.02) translate3d(0,0,0); } to { transform: scale(1.12) translate3d(-2%,-1.5%,0); } }
-  .lys { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .55; }
-  .lys circle { fill: var(--gull); animation: blink 6s ease-in-out infinite; }
-  .lys line { stroke: rgba(242,180,90,.35); stroke-width: 1; stroke-dasharray: 4 6; animation: flyt 9s linear infinite; }
-  @keyframes blink { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
-  @keyframes flyt { to { stroke-dashoffset: -100; } }
-
-  .innhald { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-  .hero .innhald { padding-bottom: 12vh; }
-  .logo { display: inline-block; border-left: 3px solid var(--teal); padding: 2px 0 2px 14px; font-family: Georgia, 'Times New Roman', serif;
-          font-size: 24px; letter-spacing: 4px; color: #fff; line-height: 1.2; }
-  .logo span { color: var(--teal); }
-  .logo.liten { font-size: 16px; letter-spacing: 3px; }
-  .merke { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
-           font-size: 13px; color: var(--teal); }
-  .merke::before { content: ""; width: 28px; height: 2px; background: var(--teal); }
-  h1 { font-size: clamp(38px, 7vw, 76px); line-height: 1.02; margin: 18px 0 18px; letter-spacing: -.02em; max-width: 12ch; }
-  .ingress { font-size: clamp(18px, 2.2vw, 22px); color: #d8e4e3; max-width: 36ch; margin: 0 0 32px; }
-  .knappar { display: flex; flex-wrap: wrap; gap: 12px; }
-  .knapp { display: inline-block; padding: 14px 24px; border-radius: 999px; font-weight: 650; text-decoration: none; transition: transform .2s, background .2s; }
-  .knapp:hover { transform: translateY(-2px); }
-  .knapp.full { background: var(--gull); color: #1b1206; }
-  .knapp.tom { border: 1px solid rgba(255,255,255,.35); color: var(--tekst); backdrop-filter: blur(6px); background: rgba(255,255,255,.06); }
-  .pil { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); color: var(--svak); font-size: 13px; letter-spacing: .2em;
-         text-transform: uppercase; animation: dupp 2.4s ease-in-out infinite; text-decoration: none; }
-  @keyframes dupp { 50% { transform: translate(-50%, 6px); } }
-
-  section { padding: 96px 0; }
-  .velkomen { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; }
-  h2 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; margin: 10px 0 18px; letter-spacing: -.01em; }
-  p { color: #d3dfde; }
-  .svak { color: var(--svak); }
-  .sitat { border-left: 3px solid var(--gull); padding: 4px 0 4px 18px; font-size: 20px; color: var(--tekst); margin: 26px 0 0; }
-  .bilete-kort { position: relative; border-radius: 22px; overflow: hidden; aspect-ratio: 4/5; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
-  .bilete-kort img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 1.6s ease; }
-  .bilete-kort:hover img { transform: scale(1.12); }
-  .bilete-kort.portrett { aspect-ratio: 768/1236; max-width: 420px; justify-self: center; width: 100%; }
-  .bilete-kort.portrett img { object-position: center top; transform: none; }
-  .bilete-kort.portrett:hover img { transform: none; }
-  .bilete-kort figcaption .tittel { display: block; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal); margin-bottom: 2px; }
-  .bilete-kort figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 22px 18px; font-size: 18px; font-weight: 600; color: #fff;
-                            background: linear-gradient(transparent, rgba(0,0,0,.65)); }
-
-  /* two sides of the founder: at the desk, and in a suit */
-  .collage { position: relative; width: 100%; max-width: 470px; justify-self: center; padding-bottom: 92px; }
-  .foto { margin: 0; position: relative; overflow: hidden; border-radius: 22px; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
-  .foto img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.4s ease; }
-  .foto:hover img { transform: scale(1.04); }
-  .foto.stor { width: 80%; aspect-ratio: 960/1186; }
-  .foto.liten { position: absolute; right: 0; bottom: 0; width: 44%; aspect-ratio: 768/1236; border: 4px solid var(--natt);
-                transform: rotate(2.5deg); transition: transform .5s ease; }
-  .foto.liten:hover { transform: rotate(0deg) translateY(-4px); }
-  .merkelapp { position: absolute; left: 12px; top: 12px; padding: 5px 11px; border-radius: 999px; font-size: 12px; font-weight: 600;
-               letter-spacing: .04em; color: #fff; background: rgba(7,18,22,.62); backdrop-filter: blur(6px); }
-  .merkelapp { white-space: nowrap; }
-  .foto.liten .merkelapp { top: auto; bottom: 10px; left: 10px; font-size: 11px; padding: 4px 9px; }
-  .namneskilt { position: absolute; left: 0; bottom: 6px; font-size: 18px; font-weight: 600; color: #fff; max-width: 52%; line-height: 1.3; }
-  .namneskilt .tittel { display: block; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal); margin-bottom: 4px; }
-  .steg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 34px; }
-  .kort { background: var(--kort); border: 1px solid var(--kant); border-radius: 18px; padding: 26px 24px; transition: transform .3s, border-color .3s; }
-  .kort:hover { transform: translateY(-4px); border-color: rgba(242,180,90,.45); }
-  .tal { font-size: 13px; font-weight: 700; color: var(--gull); letter-spacing: .15em; }
-  .kort h3 { margin: 10px 0 8px; font-size: 20px; }
-  .kort p { margin: 0; color: var(--svak); }
-
-  .bransjar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
-  .bransjar span { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--kant); background: var(--kort); color: #dbe7e6; font-size: 15px; }
-  .bransjar span:last-child { border-color: rgba(47,181,166,.5); color: var(--teal); }
-  .to { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 34px; }
-  .djup { background: var(--djup); }
-  .tillit { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start; max-width: 760px; }
-  .ikon { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: rgba(95,208,217,.12); color: var(--sjo); }
-
-  .kontakt { text-align: center; padding: 120px 0 130px; background:
-             linear-gradient(180deg, rgba(7,18,22,.92), rgba(7,18,22,.55) 45%, rgba(7,18,22,.92)), url(industri.jpg) center/cover no-repeat; }
-  .kontakt h2 { max-width: 18ch; margin-left: auto; margin-right: auto; }
-  .kontakt .knapp { margin-top: 14px; }
-
-  .norsk { max-width: 760px; }
-  footer { border-top: 1px solid var(--kant); padding: 30px 0 46px; font-size: 14px; color: var(--svak); }
-  footer .innhald { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; }
-
-  /* things appear as you scroll */
-  .kjem { opacity: 0; transform: translateY(26px); transition: opacity .9s ease, transform .9s ease; }
-  .kjem.synleg { opacity: 1; transform: none; }
-
-  @media (max-width: 820px) {
-    .velkomen, .to { grid-template-columns: 1fr; }
-    .steg { grid-template-columns: 1fr; }
-    .bilete-kort { aspect-ratio: 16/11; }
-    section { padding: 72px 0; }
-  }
-  @media (max-width: 440px) { .logo { font-size: 19px; letter-spacing: 3px; white-space: nowrap; } }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-bilete, .lys circle, .lys line, .pil { animation: none; }
-    .kjem { opacity: 1; transform: none; transition: none; }
-    html { scroll-behavior: auto; }
-  }
-</style>
+<link rel="stylesheet" href="styles.css">
+<script src="contact.js" defer></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Indokalo Connect","legalName":"Indokalo AS","url":"https://indokalo.com/","email":"connect@indokalo.com","identifier":"937822553","founder":{"@type":"Person","name":"Sondre Franco Grimen"},"address":{"@type":"PostalAddress","streetAddress":"Nygardsvegen 36","postalCode":"5419","addressLocality":"Fitjar","addressCountry":"NO"}}</script>
 </head>
 <body>
-
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="hero">
-  <div class="hero-bilete" role="img" aria-label="A ship leaving a lit harbour on a Norwegian fjord at blue hour"></div>
-  <svg class="lys" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
-    <line x1="120" y1="420" x2="420" y2="330"/><line x1="420" y1="330" x2="700" y2="380"/><line x1="700" y1="380" x2="900" y2="300"/>
-    <line x1="420" y1="330" x2="560" y2="230"/><line x1="560" y1="230" x2="860" y2="190"/>
-    <circle cx="120" cy="420" r="3"/><circle cx="420" cy="330" r="3.5" style="animation-delay:1s"/><circle cx="700" cy="380" r="3" style="animation-delay:2s"/>
-    <circle cx="900" cy="300" r="2.5" style="animation-delay:3s"/><circle cx="560" cy="230" r="3" style="animation-delay:1.5s"/><circle cx="860" cy="190" r="2.5" style="animation-delay:2.5s"/>
-  </svg>
-  <div class="innhald">
-    <div class="logo">INDOKALO <span>CONNECT</span></div>
-    <h1>Welcome aboard.</h1>
-    <p class="ingress">I connect companies.</p>
-    <div class="knappar">
-      <a class="knapp full" href="mailto:connect@indokalo.com">Write to me</a>
-      <a class="knapp tom" href="#how">How it works</a>
-    </div>
+  <div class="hero-bilete" aria-hidden="true"></div>
+  <nav class="topnav innhald" aria-label="Main navigation">
+    <a class="logo" href="/" aria-label="Indokalo Connect home">INDOKALO <span>CONNECT</span></a>
+    <div class="nav-links"><a href="#how">How it works</a><a href="#hello">Meet Sondre</a><a href="#request">Get in touch ↗</a></div>
+  </nav>
+  <div class="innhald hero-copy">
+    <p class="hero-eyebrow">Business introductions · Based in Norway</p>
+    <h1>Find suppliers and project partners <em>worldwide.</em></h1>
+    <p class="ingress">Tell me what your company needs. I’ll look for businesses that fit, check the interest on both sides, and help you take the next step.</p>
+    <div class="knappar"><a class="knapp full" href="#request" data-intent="buyer">I need a supplier or partner ↗</a><a class="knapp tom" href="#request" data-intent="supplier">My company can supply ↗</a></div>
+    <p class="hero-note">Across sectors and countries. Start with a few clear details.</p>
   </div>
-  <a class="pil" href="#hello">Scroll</a>
+  <a class="pil" href="#main">Explore ↓</a>
 </header>
-
-<section id="hello">
-  <div class="innhald velkomen">
-    <div class="kjem">
-      <div class="merke">Hello</div>
-      <h2>Hi, I'm Sondre.</h2>
-      <p>I'm based in Bergen, Norway.</p>
-      <p>Every day I look at who has just won a contract, in any industry, anywhere in Europe and beyond. Then I ask them a simple question: is there anything you need for the job? If there is, I go and find someone who can deliver it.</p>
-      <p>I've worked in fish farming myself and I have a trade certificate in aquaculture. So I know what it's like when a job is waiting on the right supplier.</p>
-      <p class="sitat">No call centre, no sales team. Just me, and a straight answer.</p>
-    </div>
-    <div class="collage kjem">
-      <figure class="foto stor">
-        <img src="sondre-pult.jpg" alt="Sondre Franco Grimen smiling at his desk" loading="lazy">
-      </figure>
-      <figure class="foto liten">
-        <img src="sondre-franco-grimen-3.jpg" alt="Sondre Franco Grimen in a dark pinstripe suit at night" loading="lazy">
-      </figure>
-      <div class="namneskilt"><span class="tittel">Founder</span> Sondre Franco Grimen</div>
-    </div>
+<main id="main">
+<section class="intro-section" aria-labelledby="start-title"><div class="innhald">
+  <div class="section-heading"><div><div class="merke">Two ways to start</div><h2 id="start-title">What brings you here?</h2></div><p class="svak">A live project, a missing supplier, or a business ready for new enquiries.</p></div>
+  <div class="to route-cards">
+    <article class="kort route-card"><span class="tal">FOR BUYERS &amp; PROJECT TEAMS</span><h3>Find what the job needs.</h3><p>Equipment, a specialist supplier, a subcontractor or a project partner. Share the scope and where it’s needed, and I’ll assess how I can help.</p><a href="#request" data-intent="buyer">Tell me what you need ↗</a></article>
+    <article class="kort route-card"><span class="tal">FOR SUPPLIERS &amp; PARTNERS</span><h3>Let me know what you can deliver.</h3><p>Tell me your capabilities and the countries you serve. If a relevant request comes in, we can discuss whether it fits your business.</p><a href="#request" data-intent="supplier">Introduce your business ↗</a></article>
   </div>
-</section>
-
-<section id="how" class="djup">
-  <div class="innhald">
-    <div class="kjem">
-      <div class="merke">How it works</div>
-      <h2>It's simple.</h2>
-    </div>
-    <div class="steg">
-      <div class="kort kjem"><div class="tal">01</div><h3>You tell me what you need</h3><p>Just reply to my e-mail. A couple of lines is plenty.</p></div>
-      <div class="kort kjem"><div class="tal">02</div><h3>I go and find it</h3><p>I look for companies that can deliver, and check they're a good fit before I come back to you.</p></div>
-      <div class="kort kjem"><div class="tal">03</div><h3>I introduce you</h3><p>We agree everything in writing first. Then I put you in touch.</p></div>
-    </div>
+  <div class="bransjar" aria-label="Example sectors"><span>Construction</span><span>Energy</span><span>Maritime</span><span>Manufacturing</span><span>Technology</span><span>Logistics</span><span>Aquaculture</span><span>And your sector</span></div>
+  <p class="small svak sector-note">Requests are welcome from any sector or country. A possible match depends on the requirements, location and available companies.</p>
+</div></section>
+<section id="how" class="djup" aria-labelledby="how-title"><div class="innhald">
+  <div class="merke">How it works</div><h2 id="how-title">A clear request. Then a conversation.</h2>
+  <div class="steg">
+    <article class="kort"><div class="tal">01</div><h3>Tell me the essentials</h3><p>What do you need or supply, where, and when? A few useful details are enough to start.</p></article>
+    <article class="kort"><div class="tal">02</div><h3>I check the fit</h3><p>I review your request, ask any missing questions and look for a relevant company. Both sides decide whether to take it further.</p></article>
+    <article class="kort"><div class="tal">03</div><h3>Agree before an introduction</h3><p>We clarify the scope and any supplier fee in writing first. Contact details are shared only after we’ve discussed the introduction.</p></article>
   </div>
-</section>
-
-<section>
-  <div class="innhald">
-    <div class="kjem">
-      <div class="merke">Who I help</div>
-      <h2>Any industry.</h2>
-    </div>
-    <div class="bransjar kjem">
-      <span>Construction</span><span>Oil &amp; gas</span><span>Energy</span><span>Maritime</span><span>Transport &amp; logistics</span>
-      <span>IT &amp; tech</span><span>Facilities &amp; cleaning</span><span>Manufacturing</span><span>Healthcare</span><span>Public works</span>
-      <span>Aquaculture</span><span>And anything else a job needs</span>
-    </div>
-    <div class="to">
-      <div class="kort kjem"><h3>You just won a contract</h3><p>Congratulations! If the job needs something you don't have yet, tell me what's missing. I'll find it.</p></div>
-      <div class="kort kjem"><h3>You sell to other companies</h3><p>Whatever you make or deliver, I'll send you the enquiries that fit.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="djup">
-  <div class="innhald">
-    <div class="tillit kjem">
-      <div class="ikon" aria-hidden="true">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M17 7.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.6 5 3 5 1.2 5 3.2-2.2 3.3-5 3.3-5-1.2-5-3.1"/></svg>
+  <div class="fee-note"><h3>How I get paid</h3><p>There’s no upfront fee. Buyers don’t pay me for an introduction. The supplier pays an agreed commission if a deal results, under the written terms agreed before the introduction.</p><p class="small svak">Sending this form doesn’t create a mandate, a supplier agreement or a commitment to pay.</p></div>
+</div></section>
+<section id="request" class="request-section" aria-labelledby="request-title"><div class="innhald request-layout">
+  <div class="request-intro"><div class="merke">Start a conversation</div><h2 id="request-title">What are you working on?</h2><p>Use this short form to explain what you need, or what your company can offer.</p><p>I’m Sondre. I’ll review the details and reply to the business email you leave here.</p><div class="request-aside"><p class="small">Prefer email?</p><a href="mailto:connect@indokalo.com">connect@indokalo.com ↗</a><p class="small svak">No mailing list. Just your request and the next conversation.</p></div></div>
+  <div class="form-panel">
+    <noscript><p class="notice">The form needs JavaScript to send securely. Please email your request to <a href="mailto:connect@indokalo.com">connect@indokalo.com</a> instead.</p></noscript>
+    <form id="contact-form" novalidate>
+      <div id="form-fields">
+        <fieldset class="intent-group"><legend>I’m here to…</legend><div class="intent-options"><label class="intent-option"><input type="radio" name="type" value="buyer" checked><span>Find a supplier or partner</span></label><label class="intent-option"><input type="radio" name="type" value="supplier"><span>Offer products or services</span></label></div></fieldset>
+        <p class="form-required small">All fields are required unless marked optional.</p>
+        <div class="field-grid">
+          <div class="field"><label for="name">Your name</label><input id="name" name="name" type="text" autocomplete="name" minlength="2" maxlength="100" required></div>
+          <div class="field"><label for="company">Company</label><input id="company" name="company" type="text" autocomplete="organization" minlength="2" maxlength="160" required></div>
+          <div class="field full-width"><label for="email">Business email</label><input id="email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required><p class="field-hint">The address where you’d like me to reply.</p></div>
+          <div class="field"><label for="country">Company country</label><input id="country" name="country" type="text" autocomplete="country-name" minlength="2" maxlength="100" required></div>
+          <div class="field"><label for="sector">Sector</label><select id="sector" name="sector" required><option value="">Choose a sector</option><option value="construction">Construction &amp; infrastructure</option><option value="energy">Energy, oil &amp; gas</option><option value="maritime">Maritime &amp; vessels</option><option value="aquaculture">Aquaculture &amp; food</option><option value="manufacturing">Manufacturing &amp; equipment</option><option value="transport">Transport &amp; logistics</option><option value="technology">IT &amp; technology</option><option value="facilities">Facilities &amp; business services</option><option value="healthcare">Healthcare &amp; life sciences</option><option value="other">Other</option></select></div>
+          <div class="field full-width"><label for="requirements" id="requirements-label">What do you need?</label><textarea id="requirements" name="requirements" rows="5" minlength="20" maxlength="4000" required aria-describedby="requirements-hint"></textarea><p class="field-hint" id="requirements-hint">Include the product, service or partner you need, the project location and any key requirements. Budget or quantity is useful if known. At least 20 characters.</p></div>
+          <div class="field full-width"><label for="timing" id="timing-label">When is it needed? <span class="optional">(optional)</span></label><input id="timing" name="timing" type="text" maxlength="200" placeholder="For example: January 2027, or still exploring"></div>
+        </div>
+        <div class="honey" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <label class="consent"><input id="consent" name="consent" type="checkbox" required><span>I agree that Indokalo Connect may use these details to review my request and contact me about it. <a href="privacy.html">Privacy notice</a>.</span></label>
+        <p class="small svak form-privacy">Please leave out sensitive information and confidential project documents.</p>
+        <button class="knapp full submit-button" id="submit-button" type="submit" disabled>Send my request ↗</button>
       </div>
-      <div>
-        <h2 style="margin-top:0">How I get paid</h2>
-        <p>Nothing up front, and nothing if nothing happens.</p>
-        <p>If you're the buyer, my help costs you nothing. When a deal goes through, the supplier pays me a commission. We agree the percentage in writing before I introduce anyone.</p>
-      </div>
-    </div>
+      <div id="form-status" class="form-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"></div>
+      <div id="form-fallback" class="fallback" hidden><a id="fallback-link" href="mailto:connect@indokalo.com">Open this request in your email app ↗</a><p class="small svak">This opens a draft. You’ll need to send it from your email app. You can also write directly to <a href="mailto:connect@indokalo.com">connect@indokalo.com</a>.</p></div>
+      <button id="another-request" class="text-button" type="button" hidden>Send another request</button>
+    </form>
   </div>
-</section>
-
-<section>
-  <div class="innhald">
-    <div class="tillit kjem">
-      <div class="ikon" aria-hidden="true">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
-      </div>
-      <div>
-        <h2 style="margin-top:0">A quick word about my e-mails</h2>
-        <p>I only write to the addresses companies put out for enquiries, like info@ or post@. Never to anyone's personal inbox. And if you'd rather not hear from me, just reply <strong>STOP</strong>. No hard feelings.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="kontakt">
-  <div class="innhald kjem">
-    <div class="merke">Say hello</div>
-    <h2>Need something for a job? Let's talk.</h2>
-    <p class="svak">I read and answer every reply myself.</p>
-    <a class="knapp full" href="mailto:connect@indokalo.com">connect@indokalo.com</a>
-  </div>
-</section>
-
-
-<footer>
-  <div class="innhald">
-    <span class="logo liten">INDOKALO <span>CONNECT</span></span>
-    <span>Indokalo AS · Norwegian org. no. 937 822 553</span>
-    <span>Nygardsvegen 36, 5419 Fitjar, Norway</span>
-  </div>
-</footer>
-
-<script>
-  (function () {
-    var ting = document.querySelectorAll('.kjem');
-    if (!('IntersectionObserver' in window)) { ting.forEach(function (t) { t.classList.add('synleg'); }); return; }
-    var obs = new IntersectionObserver(function (rader) {
-      rader.forEach(function (r) { if (r.isIntersecting) { r.target.classList.add('synleg'); obs.unobserve(r.target); } });
-    }, { threshold: 0.12 });
-    ting.forEach(function (t, i) { t.style.transitionDelay = (i % 3) * 90 + 'ms'; obs.observe(t); });
-  })();
-</script>
+</div></section>
+<section id="hello" class="djup" aria-labelledby="hello-title"><div class="innhald velkomen">
+  <div><div class="merke">The person behind the introduction</div><h2 id="hello-title">Hi, I’m Sondre.</h2><p>I’m based in Norway. I help businesses explore supplier and project partner connections, across industries and borders.</p><p>I’ve worked in fish farming and hold a trade certificate in aquaculture. That’s part of my background; your request doesn’t have to be.</p><p>Tell me what matters to your project. I’ll be clear about what I can help with and what still needs checking.</p><p class="sitat">A few useful details beat a very impressive PDF.</p></div>
+  <div class="collage"><figure class="foto stor"><img src="sondre-pult.jpg" alt="Sondre Franco Grimen smiling at his desk" width="960" height="1186" loading="lazy"></figure><figure class="foto liten"><img src="sondre-franco-grimen-3.jpg" alt="Sondre Franco Grimen in a dark pinstripe suit" width="768" height="1236" loading="lazy"></figure><div class="namneskilt"><span class="tittel">Founder</span>Sondre Franco Grimen</div></div>
+</div></section>
+<section class="faq-section" aria-labelledby="questions-title"><div class="innhald faq-layout"><div><div class="merke">A few details</div><h2 id="questions-title">Before we talk.</h2></div><div class="questions">
+  <details><summary>Do I need to have won a contract?</summary><p>No. You may have an active project, an upcoming purchase or a need for a business partner. Explain the situation and what you’re looking for.</p></details>
+  <details><summary>Which countries and sectors do you work with?</summary><p>You can send a request from any country and sector. I review the specific need and whether a practical, suitable introduction is possible. I don’t claim an established supplier network in every market.</p></details>
+  <details><summary>Will you share my details straight away?</summary><p>No. I’ll discuss the request with you before sharing your contact or company details with a potential counterpart. Both sides need to be interested in the introduction.</p></details>
+  <details><summary>What does a supplier pay?</summary><p>Any introduction fee and the conditions for payment are agreed in writing before an introduction. There is no upfront fee or fee simply for submitting this form.</p></details>
+  <details><summary>Received an email from me?</summary><p>You can reply directly with what you need, or use the form above. If you don’t want further outreach, reply STOP to the email or write to <a href="mailto:connect@indokalo.com?subject=STOP">connect@indokalo.com</a>.</p></details>
+</div></div></section>
+</main>
+<footer><div class="innhald"><a class="logo liten" href="/" aria-label="Indokalo Connect home">INDOKALO <span>CONNECT</span></a><div>Indokalo AS · Norwegian org. no. 937 822 553<br>Nygardsvegen 36, 5419 Fitjar, Norway</div><div class="footer-links"><a href="mailto:connect@indokalo.com">Contact</a><a href="privacy.html">Privacy</a></div></div></footer>
 </body>
 </html>
