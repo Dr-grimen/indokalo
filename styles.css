@@ -113,6 +113,8 @@ section { padding: 94px 0; }
 .foto.liten { position: absolute; right: 0; bottom: 0; width: 44%; aspect-ratio: 768/1236; border: 4px solid var(--natt); transform: rotate(2.5deg); }
 .namneskilt { position: absolute; left: 0; bottom: 6px; font-size: 16px; font-weight: 600; color: #fff; max-width: 52%; line-height: 1.4; }
 .namneskilt .tittel { display: block; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal); margin-bottom: 6px; }
+.namne-epost { display: block; margin-top: 4px; font-size: 13px; font-weight: 400; color: var(--teal); text-decoration: none; }
+.namne-epost:hover { text-decoration: underline; }
 .team { margin-top: 72px; padding-top: 72px; border-top: 1px solid rgba(255,255,255,.12); grid-template-columns: .95fr 1.05fr; }
 .team-collage .foto.stor img { object-position: 50% 20%; }
 .request-section { background: #10252a; border-top: 1px solid var(--kant); border-bottom: 1px solid var(--kant); }
